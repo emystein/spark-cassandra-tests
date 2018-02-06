@@ -1,6 +1,6 @@
 import sbt.Keys.resolvers
 
-name := "spark-cassandra-sql-tests"
+name := "spark-cassandra-tests"
 version := "1.0"
 
 scalaVersion := "2.11.11"
@@ -36,13 +36,4 @@ libraryDependencies ++= Seq(
 ).map(_.exclude("org.slf4j", "log4j-over-slf4j")) // Excluded to allow Cassandra to run embedded
  .map(_.exclude("org.slf4j", "slf4j-log4j12"))
 
-//excludeDependencies ++= Seq(
-//  // Excluded to allow Cassandra to run embedded
-//  ExclusionRule("org.slf4j", "log4j-over-slf4j"),
-//  ExclusionRule("org.slf4j", "slf4j-log4j12")
-//)
-
-//  // Excluded to allow Cassandra to run embedded
-//excludeDependencies += "org.slf4j" %% "log4j-over-slf4j"
-//excludeDependencies += "org.slf4j" %% "slf4j-log4j12"
 

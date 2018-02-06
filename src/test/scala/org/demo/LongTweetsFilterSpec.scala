@@ -25,8 +25,6 @@ class LongTweetsFilterSpec extends FunSuite with SparkTemplate with EmbeddedCass
 
     val longTweets = LongTweetsFilter.filterLongTweets(lines)
 
-    longTweets.collect().foreach(println)
-
-    succeed
+    longTweets.collect().foreach(tweet => assert(tweet.length > 144))
   }
 }
