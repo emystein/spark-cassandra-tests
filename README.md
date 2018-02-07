@@ -4,6 +4,9 @@ In this article I will show you how to run a Apache Spark job integrated with a 
 
 The code in this article is written in Scala, but since Spark provides bindings for Java, Python for other languages, the examples presented here can be implemented in such languages as well.
 
+Prerequisites
+-------------
+If you want to run the code in this article you will need Scala and SBT installed on your system. For details you can refer to: https://www.scala-lang.org/documentation/getting-started-sbt-track/getting-started-with-scala-and-sbt-on-the-command-line.html
 
 Introduction to Cassandra
 -------------------------
@@ -71,7 +74,7 @@ TODO: ADD FULL CODE OF TEST
 
 Embedded Spark and Cassandra
 ----------------------------
-For being able to use embedded Spark and Cassandra, the dependency artifacts com.datastax.spark:spark-cassandra-connector-embedded and org.apache.cassandra:cassandra-all
+In order to be able to use embedded Spark and Cassandra, the dependency artifacts com.datastax.spark:spark-cassandra-connector-embedded and org.apache.cassandra:cassandra-all
 
 The declaration of the test class is powerful: extending FunSuite declares this class as a test class, SparkTemplate runs a Spark context during the tests, and EmbeddedCassandra runs (as you may imagine) an embedded Cassandra instance during the life of the tests. 
 
@@ -97,12 +100,14 @@ object LongTweetsFilter {
 
 
 SBT
----
+===
 The project for this article is built using SBT. You can find the full build descriptor in the linked Github project but I want to add quick note about the build and the embedded Cassandra:
 
+Dependencies
+------------
 In my experiments I realized that the embedded Cassandra was not able to run if two conflicting SLF4J binding were found in the dependencies of the project, they were not added as direct dependencies but as transitive ones. So I excluded one of them, I chose the log4j-over-slf4j dependency for exclusion and after doing that I got a running embedded Cassandra like I wanted.
 
-`
+```
 libraryDependencies ++= Seq(
   "com.holdenkarau" %% "spark-testing-base" % sparkTestingVersion % "test",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
@@ -114,7 +119,28 @@ libraryDependencies ++= Seq(
   "com.datastax.spark" %% "spark-cassandra-connector-embedded" % sparkCassandraConnectorVersion % "test",
   "org.apache.cassandra" % "cassandra-all" % cassandraVersion % "test"
 ).map(_.exclude("org.slf4j", "log4j-over-slf4j")) // Excluded to allow Cassandra to run embedded
-`
+```
+
+Running the tests from the terminal
+-----------------------------------
+
+`sbt clean test`
+
+and you should get at the end something like this:
+
+```
+[info] LongTweetsFilterSpec:
+[info] - Should filter tweets longer than 144 chars
+[info] ScalaTest
+[info] Run completed in 14 seconds, 8 milliseconds.
+[info] Total number of tests run: 1
+[info] Suites: completed 1, aborted 0
+[info] Tests: succeeded 1, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[info] Passed: Total 1, Failed 0, Errors 0, Passed 1
+[success] Total time: 23 s, completed Feb 7, 2018 9:52:44 AM
+```
+
 
 Further reading
 ===============
