@@ -135,16 +135,16 @@ object LongTweetsFilter {
 Cassandra connector
 -------------------
 
-Add the following imports to the test class
+Adding the following imports to the test class
 
 ```
 import com.datastax.spark.connector._
 import org.apache.spark.sql.cassandra._
 ```
 
-and then you can interact between Spark RDDs, DataFrames of Datasets and Cassandra.
+allows to interact Spark RDDs, DataFrames or Datasets with Cassandra.
 
-For example, to persist the filtered tweets into Cassandra, first we create the schema before running any test:
+In order to persist the filtered tweets into Cassandra, first we create the Cassandra keyspace and table before running any test:
 
 ```
 class LongTweetsFilterSpec extends FunSuite with BeforeAndAfterAll with SparkTemplate with EmbeddedCassandra {
@@ -165,7 +165,7 @@ class LongTweetsFilterSpec extends FunSuite with BeforeAndAfterAll with SparkTem
   }
 ```
 
-For filtering the long tweets we process the DataFrame with LongTweetsFilter:
+Then for filtering the long tweets we process the DataFrame with LongTweetsFilter:
 
 ```
     val lines = sparkSession.read.option("header", "false").schema(tweetsSchema).csv("./src/test/resources/tweets.csv")
@@ -173,7 +173,7 @@ For filtering the long tweets we process the DataFrame with LongTweetsFilter:
     val longTweets = LongTweetsFilter.filterLongTweets(lines)
 ```
 
-After filtering the long tweets with LongTweetsFilter, they can be persisted in the Cassandra table created for storing them:
+And finally, after filtering the long tweets with LongTweetsFilter they can be persisted in the Cassandra table created for storing them:
 
 ```
     longTweets.write.cassandraFormat("long_tweets", "test").save()
