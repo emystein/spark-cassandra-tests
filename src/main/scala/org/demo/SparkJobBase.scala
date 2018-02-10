@@ -9,9 +9,12 @@ object SparkJobBase {
     // SparkSession is the entry point for reading data, similar to the old SQLContext.read.
     implicit val spark = SparkSession.builder().appName("LongTweets").master("local").getOrCreate()
 
-    val tweetsSchema = StructType(Array(StructField("timestamp", LongType, true), StructField("username", StringType, true), StructField("tweet", StringType, true)))
+    // this allows encoders for types other than basic, like Tweet
+    import spark.implicits._
 
-    val lines = spark.read.option("header", "false").schema(tweetsSchema).csv("./src/test/resources/tweets.csv")
+    val tweetsSchema = StructType(Array(StructField("timestamp", LongType, true), StructField("username", StringType, true), StructField("text", StringType, true)))
+
+    val lines = spark.read.option("header", "false").schema(tweetsSchema).csv("./src/test/resources/tweets.csv").as[Tweet]
 
     val longTweets = LongTweetsFilter.filterLongTweets(lines)
 

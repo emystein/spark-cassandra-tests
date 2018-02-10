@@ -69,7 +69,7 @@ I let the details about the keyspace creation for another article.
 The long_tweets table creation:
 
 `
-CREATE TABLE long_tweets(timestamp timestamp, username text, tweet text, PRIMARY KEY(timestamp, username));
+CREATE TABLE long_tweets(timestamp timestamp, username text, text text, PRIMARY KEY(timestamp, username));
 `
 
 Embedded Spark and Cassandra
@@ -110,10 +110,19 @@ Spark components
 SparkSession is the entry point for reading data. SparkSession is responsible to load the tweets.csv into a DataFrame for later consumption by the LongTweetsFilter which is the object that implements the logic of filtering tweets longer than 144.
 
 ```
-val lines = sparkSession.read.option("header", "false").schema(tweetsSchema).csv("./src/test/resources/tweets.csv")
+// this allows encoders for types other than basic, like Tweet
+import spark.implicits._
+
+val lines = sparkSession.read.option("header", "false").schema(tweetsSchema).csv("./src/test/resources/tweets.csv").as[Tweet]
 ```
 
-The static declaration of the CSV schema which allows to access the CSV data as a DataFrame: 
+We create a case class to be used as objects part of Datasets:
+
+```
+case class Tweet(timestamp: Long, username: String, text: String);
+```
+
+The static declaration of the CSV schema which allows to access the CSV data as a DataFrame/Dataset: 
 
 ```
 val tweetsSchema = StructType(Array(StructField("timestamp", LongType, true), StructField("username", StringType, true), StructField("tweet", StringType, true)))
@@ -126,8 +135,8 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
 
 object LongTweetsFilter {
-  def filterLongTweets(df: DataFrame)(implicit spark: SparkSession): DataFrame = {
-    df.where(length(df("tweet")) > 144)
+  def filterLongTweets(df: Dataset[Tweet])(implicit spark: SparkSession): Dataset[Tweet] = {
+    df.filter(_.text.length > 144)
   }
 }
 ```
@@ -160,7 +169,7 @@ class LongTweetsFilterSpec extends FunSuite with BeforeAndAfterAll with SparkTem
     super.beforeAll()
     connector.withSessionDo { session =>
       session.execute("CREATE KEYSPACE IF NOT EXISTS test WITH replication = {'class':'SimpleStrategy', 'replication_factor':1};")
-      session.execute("CREATE TABLE test.word_count (word text PRIMARY KEY, count int)")
+      session.execute("CREATE TABLE test.long_tweets(timestamp timestamp, username text, text text, PRIMARY KEY(timestamp, username));")
     }
   }
 ```
@@ -168,7 +177,10 @@ class LongTweetsFilterSpec extends FunSuite with BeforeAndAfterAll with SparkTem
 Then for filtering the long tweets we process the DataFrame with LongTweetsFilter:
 
 ```
-    val lines = sparkSession.read.option("header", "false").schema(tweetsSchema).csv("./src/test/resources/tweets.csv")
+    // this allows encoders for types other than basic, like Tweet
+    import spark.implicits._
+
+    val lines = sparkSession.read.option("header", "false").schema(tweetsSchema).csv("./src/test/resources/tweets.csv").as[Tweet]
 
     val longTweets = LongTweetsFilter.filterLongTweets(lines)
 ```
@@ -208,3 +220,6 @@ and you should get at the end something like this:
 Further reading
 ===============
 
+[A Tale of Three Apache Spark APIs: RDDs, DataFrames, and Datasets](https://databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html)
+[Spark SQL and DataFrames](https://spark.apache.org/docs/latest/sql-programming-guide.html#datasets-and-dataframes)
+[Datastax Spark Cassandra Connector](https://github.com/datastax/spark-cassandra-connector)

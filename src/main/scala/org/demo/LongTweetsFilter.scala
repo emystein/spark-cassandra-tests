@@ -1,10 +1,9 @@
 package org.demo
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.functions._
+import org.apache.spark.sql.{Dataset, SparkSession}
 
 object LongTweetsFilter {
-  def filterLongTweets(df: DataFrame)(implicit spark: SparkSession): DataFrame = {
-    df.where(length(df("tweet")) > 144)
+  def filterLongTweets(df: Dataset[Tweet])(implicit spark: SparkSession): Dataset[Tweet] = {
+    df.filter(_.text.length > 144)
   }
 }
