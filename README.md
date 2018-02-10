@@ -66,7 +66,9 @@ The **long_tweets** table creation:
 CREATE TABLE test.long_tweets(timestamp timestamp, username text, text text, PRIMARY KEY(timestamp, username));
 `
 
-# Embedded Spark and Cassandra
+# Integrating Spark and Cassandra
+
+## Embedded Spark and Cassandra
 In order to be able to use embedded Spark and Cassandra, the dependencies needed are the artifacts `com.datastax.spark:spark-cassandra-connector-embedded` and `org.apache.cassandra:cassandra-all`
 
 This project is built using **SBT**. Below is the dependency declaration of the build descriptor build.sbt.
@@ -87,8 +89,8 @@ libraryDependencies ++= Seq(
 ).map(_.exclude("org.slf4j", "log4j-over-slf4j")) // Excluded to allow Cassandra to run embedded
 ```
 
+## Scala test
 
-# Integrating Spark and Cassandra
 We will try the integration between Spark and Cassandra with a Scala test. The declaration of the test class includes the code that runs the embedded Spark and Cassandra:
 
 ```
@@ -185,7 +187,6 @@ And finally, after filtering the long tweets with LongTweetsFilter they can be p
     cassandraLongTweets.collect().foreach(tweet => assert(tweet.length > 144))
 ```
 
-
 ## Running the tests from the terminal
 
 `sbt clean test`
@@ -205,9 +206,10 @@ and you should get at the end something like this:
 [success] Total time: 23 s, completed Feb 7, 2018 9:52:44 AM
 ```
 
+# Complete project
+Complete code project can be found at Github: https://github.com/emystein/spark-cassandra-tests
 
 # Further reading
-
 [A Tale of Three Apache Spark APIs: RDDs, DataFrames, and Datasets](https://databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html)
 
 [Spark SQL and DataFrames](https://spark.apache.org/docs/latest/sql-programming-guide.html#datasets-and-dataframes)
