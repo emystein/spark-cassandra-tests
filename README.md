@@ -4,7 +4,7 @@ In this article I will show you how to run a **Apache Spark** job integrated wit
 The code in this article is written in Scala, but since Spark provides bindings for Java, Python for other languages, the examples presented here can be implemented in such languages as well.
 
 ## Prerequisites
-If you want to run the code in this article you will need Scala and SBT installed on your system. For details you can refer to: https://www.scala-lang.org/documentation/getting-started-sbt-track/getting-started-with-scala-and-sbt-on-the-command-line.html
+If you want to run the code in this article you will need Scala and SBT installed on your system. For details you can read [here](https://www.scala-lang.org/documentation/getting-started-sbt-track/getting-started-with-scala-and-sbt-on-the-command-line.html)
 
 ## Introduction to Cassandra
 Apache Cassandra is a distributed, scalable, highly-available, fault-tolerant NoSQL database recommended for storing massive amounts of data. Currently it serves many well established internet-scale services.
